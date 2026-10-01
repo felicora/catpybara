@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
-const IDS=['clock','game','cal','music','photo','mood','notes','todo','settings','pet','term','avatar','stickers']
+const IDS=['game','music','photo','mood','notes','pet','term','avatar','stickers']
 export default function Terminal(){
   const [lines,setLines]=useState(['Sakura Cat Terminal 🐾','Type "help" to begin.']),[v,setV]=useState('')
   const end=useRef<HTMLDivElement>(null)

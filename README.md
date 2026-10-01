@@ -11,3 +11,9 @@ Add an app by creating a component in `src/apps/` and adding one entry to `APPS`
 
 ## Inspiration notes
 Patterns borrowed from the public repo page of a desktop-OS-style project (structure only, no code or art): boot-to-desktop flow, taskbar clock, flying mood feedback, pet/terminal mini apps, pixel sprites, switchable wallpapers. All icons, sprites and text here are original.
+
+## Redesign notes
+- Wallpapers live in `public/wallpapers/` (right-click the desktop, long-press on touch, or use Settings to switch).
+- Dock icons are cropped from your icon sheet into `public/icons/` (all eight, including Five in a Row).
+- `public/audio/meow.mp3` plays when you click the cat.
+- The cat is an original SVG sprite. `public/cat/peek.mp4` is your clip, shown as the small polaroid; it has a solid background, so it cannot act as a see-through overlay.

@@ -1,8 +1,9 @@
 import {useState} from 'react'
+import Todo from './Todo'
 import {useLocalStorage} from '../hooks/useLocalStorage'
 type Note={id:number;body:string;color:string;pin:boolean;cr:number;mod:number}
 const COL=['#fff0b8','#ffd4dc','#d9d0f5','#cfe9f7','#d3ecd2']
-export default function Notebook(){
+function Notes(){
   const [ns,setNs]=useLocalStorage<Note[]>('scd-notes',[]),[q,setQ]=useState(''),[id,setId]=useState<number|null>(null)
   const cur=ns.find(n=>n.id===id)
   const upd=(p:Partial<Note>)=>setNs(s=>s.map(n=>n.id===id?{...n,...p,mod:Date.now()}:n))
@@ -23,4 +24,8 @@ export default function Notebook(){
       <p className="mt-1 text-[11px] opacity-70">{cur.body.length}/2000 · created {new Date(cur.cr).toLocaleDateString()} · edited {new Date(cur.mod).toLocaleString()}</p></div>
     :<div className="grid place-items-center rounded-2xl bg-white/60 p-4 text-center text-sm font-bold"><svg width="120" viewBox="0 0 120 70" aria-hidden><rect x="10" y="30" width="100" height="34" rx="4" fill="#ffd4dc" stroke="#c9a48c"/><ellipse cx="60" cy="28" rx="34" ry="14" fill="#ffe3c8" stroke="#c9a48c"/><circle cx="36" cy="24" r="12" fill="#ffe3c8" stroke="#c9a48c"/><path d="M28 14l-2-10 9 6zM40 12l8-6 0 10z" fill="#ffe3c8"/><path d="M30 25q3 3 6 0M38 25q3 3 6 0" stroke="#4a3228" fill="none"/></svg>Shh, the cat is napping on your notebook.<br/>Tap ＋ to write a note.</div>}
   </div>
+}
+export default function Notebook(){
+  const [t,setT]=useState<'notes'|'todo'>('notes')
+  return <div><div role="tablist" className="flex gap-1 px-3 pt-3">{(['notes','todo'] as const).map(v=><button key={v} role="tab" aria-selected={t===v} onClick={()=>setT(v)} className={`rounded-full px-3 py-1 text-sm font-bold ${t===v?'bg-pink-300':'bg-white/80'}`}>{v==='notes'?'Notes':'To-do'}</button>)}</div>{t==='notes'?<Notes/>:<Todo/>}</div>
 }

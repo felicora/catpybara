@@ -1,54 +1,51 @@
-import {useEffect,useRef,useState,type ComponentType} from 'react'
+import {useEffect,useRef,useState,type ComponentType,type CSSProperties} from 'react'
 import {AnimatePresence,motion} from 'framer-motion'
 import AppIcon from './components/AppIcon'
 import Boot from './components/Boot'
-import Pet from './apps/Pet'
-import AvatarCreator from './apps/AvatarCreator'
-import Stickers from './apps/Stickers'
+import TopBar from './components/TopBar'
+import Decor from './components/Decor'
+import Companion from './components/Companion'
+import WallPicker from './components/WallPicker'
 import MusicWidget from './components/MusicWidget'
-import Terminal from './apps/Terminal'
-import WorldClock from './apps/WorldClock'
+import {WALLS} from './data/wallpapers'
+import {Petals} from './Scene'
+import {useLocalStorage} from './hooks/useLocalStorage'
 import FiveInARow from './apps/FiveInARow'
-import CalendarApp from './apps/Calendar'
 import MusicApp from './apps/Music'
 import PhotoBooth from './apps/PhotoBooth'
 import Mood from './apps/Mood'
 import Notebook from './apps/Notebook'
-import Todo from './apps/Todo'
-import SettingsApp from './apps/Settings'
-import {useLocalStorage} from './hooks/useLocalStorage'
-import {Petals,Scene} from './Scene'
+import Pet from './apps/Pet'
+import Terminal from './apps/Terminal'
+import AvatarCreator from './apps/AvatarCreator'
+import Stickers from './apps/Stickers'
 
-type AppDef={id:string;title:string;tint:string;w:number;h:number;C:ComponentType}
+type AppDef={id:string;title:string;tint:string;w:number;h:number;C:ComponentType;icon?:string;dock?:boolean}
+// World clock, calendar and settings live in the top-right corner (TopBar); To-do lives inside Notebook.
 const APPS:AppDef[]=[
-  {id:'clock',title:'World Clock',tint:'#cfe6f7',w:400,h:440,C:WorldClock},
-  {id:'game',title:'Five in a Row',tint:'#f9c9d9',w:460,h:560,C:FiveInARow},
-  {id:'cal',title:'Calendar',tint:'#fde2b8',w:380,h:520,C:CalendarApp},
-  {id:'music',title:'Music',tint:'#d9d0f5',w:340,h:480,C:MusicApp},
-  {id:'photo',title:'Photo Booth',tint:'#cfeede',w:460,h:580,C:PhotoBooth},
-  {id:'mood',title:'Mood Tracker',tint:'#ffd4dc',w:420,h:600,C:Mood},
-  {id:'notes',title:'Notebook',tint:'#fff0b8',w:500,h:460,C:Notebook},
-  {id:'todo',title:'To-do',tint:'#d3ecd2',w:340,h:420,C:Todo},
-  {id:'settings',title:'Settings',tint:'#dfe3ea',w:340,h:400,C:SettingsApp},
-  {id:'pet',title:'Cat Pet',tint:'#ffe0c2',w:340,h:460,C:Pet},
-  {id:'term',title:'Terminal',tint:'#e5dff5',w:420,h:340,C:Terminal},
-  {id:'avatar',title:'Avatar',tint:'#ffd9e8',w:440,h:620,C:AvatarCreator},
-  {id:'stickers',title:'Stickers',tint:'#e2f0d6',w:480,h:620,C:Stickers}]
+  {id:'game',title:'Five in a Row',tint:'#f9c9d9',w:460,h:560,C:FiveInARow,icon:'/icons/game.png',dock:true},
+  {id:'mood',title:'Mood Tracker',tint:'#ffd4dc',w:420,h:600,C:Mood,icon:'/icons/mood.png',dock:true},
+  {id:'photo',title:'Photo Booth',tint:'#cfeede',w:460,h:580,C:PhotoBooth,icon:'/icons/photo.png',dock:true},
+  {id:'term',title:'Terminal',tint:'#e5dff5',w:420,h:340,C:Terminal,icon:'/icons/term.png',dock:true},
+  {id:'stickers',title:'Stickers',tint:'#e2f0d6',w:480,h:620,C:Stickers,icon:'/icons/stickers.png',dock:true},
+  {id:'avatar',title:'Avatar',tint:'#ffd9e8',w:440,h:620,C:AvatarCreator,icon:'/icons/avatar.png',dock:true},
+  {id:'notes',title:'Notebook',tint:'#fff0b8',w:500,h:480,C:Notebook,icon:'/icons/notes.png',dock:true},
+  {id:'music',title:'Music',tint:'#d9d0f5',w:340,h:480,C:MusicApp,icon:'/icons/music.png',dock:true},
+  {id:'pet',title:'Cat Pet',tint:'#ffe0c2',w:340,h:460,C:Pet}] // not in the dock; open it with `open pet` in the Terminal
 type WS={x:number;y:number;z:number;min:boolean;max:boolean}
 type Actions={focus:()=>void;close:()=>void;min:()=>void;max:()=>void;move:(x:number,y:number)=>void}
-
-/** Icons fill two columns per side, wrapping into extra columns on short screens. */
-const pos=(i:number,n:number)=>{const h=Math.ceil(n/2),r=Math.max(3,Math.floor((innerHeight-150)/88)),k=i<h?i:i-h;return {position:'fixed' as const,top:64+(k%r)*88,[i<h?'left':'right']:12+Math.floor(k/r)*92}}
 const blip=()=>{if(localStorage.getItem('scd-sound')==='false')return;try{const c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.frequency.value=660;g.gain.value=.04;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.08)}catch{/* no audio */}}
-const isTouch=()=>matchMedia('(pointer:coarse)').matches
+const spot=(a:AppDef,n:number)=>({x:Math.max(8,(innerWidth-a.w)/2+n*28),y:Math.max(64,(innerHeight-a.h)/2-30+n*28)})
+const NOMENU='[role=dialog],[data-top],[data-dock],[data-menu]'
 
 function Win({a,s,mobile,on}:{a:AppDef;s:WS;mobile:boolean;on:Actions}){
-  const style=mobile?{left:0,top:0,right:0,bottom:64,zIndex:s.z}
-    :s.max?{left:8,top:52,width:'calc(100vw - 16px)',height:'calc(100vh - 110px)',zIndex:s.z}
-    :{left:s.x,top:s.y,width:Math.min(a.w,innerWidth-16),height:Math.min(a.h,innerHeight-100),zIndex:s.z}
+  const w=Math.min(a.w,innerWidth-16)
+  const style=mobile?{left:0,top:0,right:0,bottom:76,zIndex:s.z}
+    :s.max?{left:8,top:56,width:'calc(100vw - 16px)',height:'calc(100vh - 160px)',zIndex:s.z}
+    :{left:s.x,top:s.y,width:w,height:Math.min(a.h,innerHeight-160),zIndex:s.z}
   const drag=(e:React.PointerEvent)=>{
     if(mobile||s.max)return
-    const w=Math.min(a.w,innerWidth-16),ox=e.clientX-s.x,oy=e.clientY-s.y
+    const ox=e.clientX-s.x,oy=e.clientY-s.y
     const mv=(ev:PointerEvent)=>on.move(Math.min(innerWidth-80,Math.max(80-w,ev.clientX-ox)),Math.min(innerHeight-90,Math.max(0,ev.clientY-oy)))
     const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)}
     addEventListener('pointermove',mv);addEventListener('pointerup',up)
@@ -65,47 +62,48 @@ function Win({a,s,mobile,on}:{a:AppDef;s:WS;mobile:boolean;on:Actions}){
   </motion.div>
 }
 
-function Top(){
-  const [n,setN]=useState(new Date())
-  useEffect(()=>{const t=setInterval(()=>setN(new Date()),1000);return()=>clearInterval(t)},[])
-  return <div className="glass fixed left-1/2 top-3 z-[5] -translate-x-1/2 rounded-full px-4 py-1 text-center text-sm font-black">
-    {n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} <span className="font-semibold opacity-70">· {n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</span></div>
-}
-
 export default function Desktop(){
   const [ws,setWs]=useState<Record<string,WS>>({})
-  const top=useRef(10),mem=useRef<Record<string,{x:number;y:number}>>({})
-  const [mobile,setMobile]=useState(innerWidth<640)
-  useEffect(()=>{const f=()=>setMobile(innerWidth<640);addEventListener('resize',f);return()=>removeEventListener('resize',f)},[])
-  const [burst,setBurst]=useState(0)
+  const top=useRef(10),mem=useRef<Record<string,{x:number;y:number}>>({}),hold=useRef(0)
+  const [mobile,setMobile]=useState(innerWidth<640),[burst,setBurst]=useState(0),[menu,setMenu]=useState<{x:number;y:number}|null>(null)
+  const [wall]=useLocalStorage('scd-wall','fuji'),[petalsOn]=useLocalStorage('scd-petals',true),[reduce]=useLocalStorage('scd-reduce',false)
   const [booted,setBooted]=useState(()=>{try{return sessionStorage.getItem('scd-booted')==='1'||matchMedia('(prefers-reduced-motion:reduce)').matches}catch{return false}})
   const done=()=>{try{sessionStorage.setItem('scd-booted','1')}catch{/* private mode */};setBooted(true)}
-  const [petalsOn]=useLocalStorage('scd-petals',true),[reduce]=useLocalStorage('scd-reduce',false)
+  const W=WALLS.find(w=>w.id===wall)??WALLS[0]
+  useEffect(()=>{const f=()=>setMobile(innerWidth<640);addEventListener('resize',f);return()=>removeEventListener('resize',f)},[])
   useEffect(()=>{document.documentElement.dataset.reduce=String(reduce)},[reduce])
-  useEffect(()=>{const f=()=>{mem.current={};setWs(s=>Object.fromEntries(Object.entries(s).map(([id,w],n)=>{const a=APPS.find(x=>x.id===id)!;return [id,{...w,max:false,x:Math.max(8,(innerWidth-a.w)/2+n*28),y:Math.max(60,(innerHeight-a.h)/2-20+n*28)}]})))};addEventListener('scd-reset',f);return()=>removeEventListener('scd-reset',f)},[])
+  useEffect(()=>{const f=()=>{mem.current={};setWs(s=>Object.fromEntries(Object.entries(s).map(([id,w],n)=>[id,{...w,max:false,...spot(APPS.find(x=>x.id===id)!,n)}])))}
+    addEventListener('scd-reset',f);return()=>removeEventListener('scd-reset',f)},[])
+  useEffect(()=>{if(!menu)return
+    const d=(e:PointerEvent)=>{if(!(e.target as HTMLElement).closest('[data-menu]'))setMenu(null)},k=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenu(null)}
+    addEventListener('pointerdown',d);addEventListener('keydown',k);return()=>{removeEventListener('pointerdown',d);removeEventListener('keydown',k)}},[menu])
   const patch=(id:string,p:Partial<WS>)=>setWs(s=>s[id]?{...s,[id]:{...s[id],...p}}:s)
   const focus=(id:string)=>setWs(s=>s[id]?{...s,[id]:{...s[id],z:++top.current,min:false}}:s)
-  const open=(a:AppDef)=>{blip();setWs(s=>{const n=Object.keys(s).length
-    const p=mem.current[a.id]??{x:Math.max(8,(innerWidth-a.w)/2+n*28),y:Math.max(60,(innerHeight-a.h)/2-20+n*28)}
-    return {...s,[a.id]:{...(s[a.id]??{...p,max:false}),z:++top.current,min:false}}})}
+  const open=(a:AppDef)=>{blip();setWs(s=>({...s,[a.id]:{...(s[a.id]??{...(mem.current[a.id]??spot(a,Object.keys(s).length)),max:false}),z:++top.current,min:false}}))}
   const close=(id:string)=>setWs(s=>{mem.current[id]={x:s[id].x,y:s[id].y};const {[id]:_,...rest}=s;return rest})
-  const active=Object.entries(ws).filter(([,w])=>!w.min).sort((x,y)=>y[1].z-x[1].z)[0]?.[0]
   const openIds=APPS.filter(a=>ws[a.id])
   useEffect(()=>{const o=(e:Event)=>{const a=APPS.find(x=>x.id===(e as CustomEvent).detail);if(a)open(a)};const b=()=>{setBurst(1);setTimeout(()=>setBurst(0),9000)}
     addEventListener('scd-open',o);addEventListener('scd-burst',b);return()=>{removeEventListener('scd-open',o);removeEventListener('scd-burst',b)}},[])
-  return <div className="fixed inset-0 overflow-hidden">
-    <AnimatePresence>{!booted&&<Boot key="boot" onDone={done}/>}</AnimatePresence><Scene/>{petalsOn&&<Petals n={mobile?10:26}/>}{burst>0&&<Petals key={burst} n={22}/>}{!mobile&&innerHeight>=700&&<MusicWidget/>}<Top/>
-    <nav aria-label="Desktop shortcuts" className="fixed inset-x-2 top-14 z-[5] grid grid-cols-4 gap-2 sm:contents">
-      {APPS.map((a,i)=><button key={a.id} style={mobile?undefined:pos(i,APPS.length)} title={`Open ${a.title}`} aria-label={`Open ${a.title}`} onClick={()=>isTouch()&&open(a)} onDoubleClick={()=>open(a)} onKeyDown={e=>e.key==='Enter'&&open(a)} className="group flex w-20 justify-self-center flex-col items-center gap-1 rounded-2xl p-1 text-xs font-black">
-        <span className="transition drop-shadow-md group-hover:-translate-y-1.5"><AppIcon id={a.id} tint={a.tint} size={56}/></span>
-        <span className="rounded-full bg-white/60 px-2">{a.title}</span></button>)}
-    </nav>
+  return <div className="fixed inset-0 overflow-hidden" style={{'--px':0,'--py':0} as CSSProperties}
+    onPointerMove={e=>{const s=e.currentTarget.style;s.setProperty('--px',String(e.clientX/innerWidth*2-1));s.setProperty('--py',String(e.clientY/innerHeight*2-1))}}
+    onContextMenu={e=>{if((e.target as HTMLElement).closest(NOMENU))return;e.preventDefault();setMenu({x:e.clientX,y:e.clientY})}}
+    onPointerDown={e=>{if(e.pointerType==='touch'&&!(e.target as HTMLElement).closest(`${NOMENU},button`)){const x=e.clientX,y=e.clientY;hold.current=window.setTimeout(()=>setMenu({x,y}),650)}}}
+    onPointerUp={()=>clearTimeout(hold.current)} onPointerCancel={()=>clearTimeout(hold.current)}>
+    <AnimatePresence>{!booted&&<Boot key="boot" onDone={done}/>}</AnimatePresence>
+    <div aria-hidden className="absolute -inset-8" style={{transform:'translate(calc(var(--px)*-10px),calc(var(--py)*-6px))'}}>
+      <motion.div key={W.id} initial={{opacity:0}} animate={{opacity:1}} transition={{duration:.7}} className="h-full w-full bg-cover bg-center" style={{backgroundColor:'#fde9ef',backgroundImage:`url(${W.src})`}}/></div>
+    <Decor/>
+    {petalsOn&&<Petals n={mobile?10:26}/>}{burst>0&&<Petals key={burst} n={22}/>}
+    <Companion mobile={mobile}/><TopBar/>
     <AnimatePresence>{openIds.map(a=><Win key={a.id} a={a} s={ws[a.id]} mobile={mobile} on={{
       focus:()=>focus(a.id),close:()=>close(a.id),min:()=>patch(a.id,{min:true}),max:()=>patch(a.id,{max:!ws[a.id].max}),move:(x,y)=>patch(a.id,{x,y})}}/>)}</AnimatePresence>
-    <div className="glass fixed bottom-2 left-1/2 z-[99999] flex h-14 -translate-x-1/2 items-center gap-2 rounded-full px-3">
-      {openIds.length===0&&<span className="px-2 text-xs font-bold">{mobile?'Tap':'Double-click'} an icon to open it ✿</span>}
-      {openIds.map(a=><button key={a.id} aria-label={`${a.title}${ws[a.id].min?' (minimized)':''}`} title={a.title} onClick={()=>focus(a.id)} className="relative grid h-10 w-10 place-items-center rounded-xl transition hover:-translate-y-1" style={{outline:active===a.id?'2px solid #e58aa8':'none'}}>
-        <AppIcon id={a.id} tint={a.tint} size={34}/>{!ws[a.id].min&&<i className="absolute -bottom-1 h-1.5 w-1.5 rounded-full bg-pink-400"/>}</button>)}
-    </div>
+    <nav data-dock aria-label="Dock" className="glass fixed bottom-3 left-1/2 z-[99999] flex -translate-x-1/2 items-end gap-1 rounded-[28px] px-2.5 py-2 sm:gap-1.5" style={{'--s':'clamp(34px,10vw,58px)'} as CSSProperties}>
+      {APPS.filter(a=>a.dock).map(a=><button key={a.id} data-l={a.title} aria-label={`${a.title}${ws[a.id]?' (open)':''}`} onClick={()=>open(a)} className="dk relative [&_svg]:h-full [&_svg]:w-full" style={{width:'var(--s)',height:'var(--s)'}}>
+        {a.icon?<img src={a.icon} alt="" draggable={false} className="h-full w-full object-contain drop-shadow-md"/>:<AppIcon id={a.id} tint={a.tint} size={58}/>}
+        {ws[a.id]&&<i className="absolute -bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-pink-400"/>}</button>)}</nav>
+    {!mobile&&innerWidth>=1000&&innerHeight>=700&&<MusicWidget/>}
+    {menu&&<div data-menu role="menu" className="glass fixed z-[100001] w-60 rounded-2xl p-3" style={{left:Math.min(menu.x,innerWidth-250),top:Math.min(menu.y,innerHeight-290)}}>
+      <p className="mb-2 text-sm font-black">🌸 Change wallpaper</p><WallPicker onPick={()=>setMenu(null)}/>
+      <button className="mt-2 w-full rounded-xl bg-pink-200 p-1.5 text-sm font-bold" onClick={()=>{dispatchEvent(new Event('scd-reset'));setMenu(null)}}>Reset windows</button></div>}
   </div>
 }
