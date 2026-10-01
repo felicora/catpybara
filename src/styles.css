@@ -1,0 +1,12 @@
+@import "tailwindcss";
+html,body,#root{height:100%;margin:0;overflow:hidden}
+body{font-family:ui-rounded,'Nunito','Segoe UI',system-ui,sans-serif;color:#4a3228;background:#fde9ef}
+.glass{background:rgba(255,255,255,.74);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.85);box-shadow:0 12px 32px rgba(120,70,90,.2)}
+.petal{position:fixed;top:-5vh;z-index:6;pointer-events:none;background:radial-gradient(#ffeef3,#f7a8c0);border-radius:150% 0 150% 0;animation:fall linear infinite}
+@keyframes fall{to{transform:translate3d(14vw,108vh,0) rotate(540deg)}}
+@keyframes walk{from{left:-70px}to{left:calc(100% + 70px)}}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b9a3e3;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.petal{display:none}.walker{animation:none!important}}
+.bar{display:inline-block;width:4px;height:18px;border-radius:2px;background:#e58aa8;transform-origin:bottom;animation:bar .8s ease-in-out infinite alternate}
+@keyframes bar{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+[data-reduce=true] .petal{display:none}[data-reduce=true] .walker,[data-reduce=true] .bar{animation:none!important}[data-reduce=true] *{transition-duration:.01ms!important}

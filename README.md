@@ -1,0 +1,13 @@
+# Sakura Cat Desktop
+A cozy sakura-and-cat virtual desktop. React + TypeScript + Vite + Tailwind 4 + Framer Motion.
+
+    npm install
+    npm run dev
+
+Included: desktop shell (time-of-day sky, sakura tree, falling petals, sleeping + wandering cats), draggable/minimizable/maximizable windows with focus layering, dock, World Clock (Intl.DateTimeFormat, IANA zones, DST automatic), Five in a Row (PvP / vs computer, 3 levels, score saved).
+Also: Calendar (notes), Music Player (add MP3s to `public/audio/`), Photo Booth (camera only after "Open camera"), Mood Tracker, Notebook, To-do, Settings.
+Also: Avatar Creator (PNG export), Sticker Collection (37 original SVG stickers, board + PNG export), and a desktop music widget sharing one audio player with the Music window.
+Add an app by creating a component in `src/apps/` and adding one entry to `APPS` in `src/App.tsx`.
+
+## Inspiration notes
+Patterns borrowed from the public repo page of a desktop-OS-style project (structure only, no code or art): boot-to-desktop flow, taskbar clock, flying mood feedback, pet/terminal mini apps, pixel sprites, switchable wallpapers. All icons, sprites and text here are original.
