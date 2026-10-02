@@ -17,3 +17,4 @@ Patterns borrowed from the public repo page of a desktop-OS-style project (struc
 - Dock icons are cropped from your icon sheet into `public/icons/` (all eight, including Five in a Row).
 - `public/audio/meow.mp3` plays when you click the cat.
 - The cat is an original SVG sprite. `public/cat/peek.mp4` is your clip, shown as the small polaroid; it has a solid background, so it cannot act as a see-through overlay.
+- Cat Pet is a Tamagotchi: the frame is your artwork (`public/icons/pet-device.webp`, LCD cleared), the pixel cat and screen are drawn live in `src/apps/Pet.tsx`. Needs (food, joy, energy) drift down with real time and are saved locally.

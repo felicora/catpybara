@@ -35,3 +35,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .cat.walk,.cat.chase{animation:bob .42s ease-in-out infinite alternate}@keyframes bob{to{transform:translateY(-3px)}}
 [data-reduce=true] :is(.bf,.bird,.cloud,.spk,.paw,.glow,.steam,.zzz,.tail,.cat){animation:none!important}
 @media (prefers-reduced-motion:reduce){:is(.bf,.bird,.cloud,.spk,.paw,.glow,.steam,.zzz,.tail,.cat,.leg){animation:none!important}}
+.pbob{animation:pbob .9s steps(1) infinite}.pnap{animation:pbob 2.4s steps(1) infinite}.phop{animation:phop .5s steps(1) infinite}
+@keyframes pbob{50%{transform:translateY(-1px)}}@keyframes phop{25%{transform:translateY(-4px)}50%{transform:translateY(0)}75%{transform:translateY(-4px)}}
+.pz{animation:pz 2s steps(4) infinite}@keyframes pz{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(-3px)}}
+.pblink{animation:pbl 1s steps(1) infinite}@keyframes pbl{50%{opacity:0}}
+.pfish{animation:pfish 1.1s steps(6) forwards}@keyframes pfish{from{transform:translate(4px,26px)}80%{transform:translate(20px,28px);opacity:1}to{transform:translate(22px,28px);opacity:0}}
+.pyarn{animation:pyarn .5s steps(1) infinite}@keyframes pyarn{0%{transform:translate(41px,35px)}25%{transform:translate(43px,30px)}50%{transform:translate(45px,35px)}75%{transform:translate(43px,30px)}}
+[data-reduce=true] :is(.pbob,.pnap,.phop,.pz,.pblink,.pyarn){animation:none!important}
+@media (prefers-reduced-motion:reduce){:is(.pbob,.pnap,.phop,.pz,.pblink,.pyarn){animation:none!important}}

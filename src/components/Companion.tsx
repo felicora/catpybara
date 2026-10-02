@@ -31,7 +31,7 @@ export default function Companion({mobile}:{mobile:boolean}){
       else if(r<.36){setMode('smile');setSay('♡');await sl(2.4);setSay('')}
       else if(r<.5){setDur(0);at.current={x:W*.12,y:g-innerHeight*.3};setP(at.current);setMode('sit');await sl(1.2);await go(W*.12+rand(30,120),g,'jump',220)}
       else if(r<.64){const b={x:rand(60,W-S-60),y:g};setBait(b);await go(b.x,g,'chase',360);setBait(null);setMode('smile');await sl(1.2)}
-      else if(r<.77){await go(mobile?rand(20,W-S-20):Math.max(8,W/2-290-S),g);setMode('sit');await sl(4)}
+      else if(r<.77){await go(mobile?rand(20,W-S-20):Math.max(8,W/2-335-S),g);setMode('sit');await sl(4)}
       else if(r<.89){await go(W*.16,g);setMode('rest');await sl(5)}
       else{await go(W*.14,g);setMode('sleep');await sl(8)}}})()
     return()=>{dead=true}},[mobile])

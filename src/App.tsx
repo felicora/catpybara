@@ -31,7 +31,7 @@ const APPS:AppDef[]=[
   {id:'avatar',title:'Avatar',tint:'#ffd9e8',w:440,h:620,C:AvatarCreator,icon:'/icons/avatar.png',dock:true},
   {id:'notes',title:'Notebook',tint:'#fff0b8',w:500,h:480,C:Notebook,icon:'/icons/notes.png',dock:true},
   {id:'music',title:'Music',tint:'#d9d0f5',w:340,h:480,C:MusicApp,icon:'/icons/music.png',dock:true},
-  {id:'pet',title:'Cat Pet',tint:'#ffe0c2',w:340,h:460,C:Pet}] // not in the dock; open it with `open pet` in the Terminal
+  {id:'pet',title:'Cat Pet',tint:'#ffe0c2',w:420,h:500,C:Pet,icon:'/icons/pet.png',dock:true}]
 type WS={x:number;y:number;z:number;min:boolean;max:boolean}
 type Actions={focus:()=>void;close:()=>void;min:()=>void;max:()=>void;move:(x:number,y:number)=>void}
 const blip=()=>{if(localStorage.getItem('scd-sound')==='false')return;try{const c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.frequency.value=660;g.gain.value=.04;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.08)}catch{/* no audio */}}
@@ -97,7 +97,7 @@ export default function Desktop(){
     <Companion mobile={mobile}/><TopBar/>
     <AnimatePresence>{openIds.map(a=><Win key={a.id} a={a} s={ws[a.id]} mobile={mobile} on={{
       focus:()=>focus(a.id),close:()=>close(a.id),min:()=>patch(a.id,{min:true}),max:()=>patch(a.id,{max:!ws[a.id].max}),move:(x,y)=>patch(a.id,{x,y})}}/>)}</AnimatePresence>
-    <nav data-dock aria-label="Dock" className="glass fixed bottom-3 left-1/2 z-[99999] flex -translate-x-1/2 items-end gap-1 rounded-[28px] px-2.5 py-2 sm:gap-1.5" style={{'--s':'clamp(34px,10vw,58px)'} as CSSProperties}>
+    <nav data-dock aria-label="Dock" className="glass fixed bottom-3 left-1/2 z-[99999] flex -translate-x-1/2 items-end gap-1 rounded-[28px] px-2.5 py-2 sm:gap-1.5" style={{'--s':'clamp(30px,9.2vw,58px)'} as CSSProperties}>
       {APPS.filter(a=>a.dock).map(a=><button key={a.id} data-l={a.title} aria-label={`${a.title}${ws[a.id]?' (open)':''}`} onClick={()=>open(a)} className="dk relative [&_svg]:h-full [&_svg]:w-full" style={{width:'var(--s)',height:'var(--s)'}}>
         {a.icon?<img src={a.icon} alt="" draggable={false} className="h-full w-full object-contain drop-shadow-md"/>:<AppIcon id={a.id} tint={a.tint} size={58}/>}
         {ws[a.id]&&<i className="absolute -bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-pink-400"/>}</button>)}</nav>
