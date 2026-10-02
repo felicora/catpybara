@@ -6,6 +6,7 @@ import TopBar from './components/TopBar'
 import Decor from './components/Decor'
 import Companion from './components/Companion'
 import WallPicker from './components/WallPicker'
+import CatPicker from './components/CatPicker'
 import MusicWidget from './components/MusicWidget'
 import {WALLS} from './data/wallpapers'
 import {Petals} from './Scene'
@@ -91,7 +92,7 @@ export default function Desktop(){
     onPointerUp={()=>clearTimeout(hold.current)} onPointerCancel={()=>clearTimeout(hold.current)}>
     <AnimatePresence>{!booted&&<Boot key="boot" onDone={done}/>}</AnimatePresence>
     <div aria-hidden className="absolute -inset-8" style={{transform:'translate(calc(var(--px)*-10px),calc(var(--py)*-6px))'}}>
-      <motion.div key={W.id} initial={{opacity:0}} animate={{opacity:1}} transition={{duration:.7}} className="h-full w-full bg-cover bg-center" style={{backgroundColor:'#fde9ef',backgroundImage:`url(${W.src})`}}/></div>
+      <motion.div key={W.id} initial={{opacity:0}} animate={{opacity:1}} transition={{duration:.7}} className="relative h-full w-full bg-cover" style={{backgroundColor:'#fde9ef',backgroundImage:`url(${W.src})`,backgroundPosition:W.pos??'center'}}>{W.video&&!reduce&&!matchMedia('(prefers-reduced-motion:reduce)').matches&&<video src={W.video} poster={W.src} autoPlay loop muted playsInline aria-hidden className="absolute inset-0 h-full w-full object-cover"/>}</motion.div></div>
     <Decor/>
     {petalsOn&&<Petals n={mobile?10:26}/>}{burst>0&&<Petals key={burst} n={22}/>}
     <Companion mobile={mobile}/><TopBar/>
@@ -102,8 +103,8 @@ export default function Desktop(){
         {a.icon?<img src={a.icon} alt="" draggable={false} className="h-full w-full object-contain drop-shadow-md"/>:<AppIcon id={a.id} tint={a.tint} size={58}/>}
         {ws[a.id]&&<i className="absolute -bottom-1.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-pink-400"/>}</button>)}</nav>
     {!mobile&&innerWidth>=1000&&innerHeight>=700&&<MusicWidget/>}
-    {menu&&<div data-menu role="menu" className="glass fixed z-[100001] w-60 rounded-2xl p-3" style={{left:Math.min(menu.x,innerWidth-250),top:Math.min(menu.y,innerHeight-290)}}>
-      <p className="mb-2 text-sm font-black">🌸 Change wallpaper</p><WallPicker onPick={()=>setMenu(null)}/>
+    {menu&&<div data-menu role="menu" className="glass fixed z-[100001] max-h-[78vh] w-72 overflow-auto rounded-2xl p-3" style={{left:Math.min(menu.x,innerWidth-300),top:Math.min(menu.y,innerHeight*.2)}}>
+      <p className="mb-1 text-sm font-black">🐱 Cat companion</p><CatPicker/><p className="mb-1 mt-3 text-sm font-black">🌸 Change wallpaper</p><WallPicker onPick={()=>setMenu(null)}/>
       <button className="mt-2 w-full rounded-xl bg-pink-200 p-1.5 text-sm font-bold" onClick={()=>{dispatchEvent(new Event('scd-reset'));setMenu(null)}}>Reset windows</button></div>}
   </div>
 }

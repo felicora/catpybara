@@ -1,6 +1,6 @@
 import {useSyncExternalStore} from 'react'
-// Placeholder paths: put royalty-free MP3s with these names in public/audio/ (see public/audio/README.md).
-export const TRACKS=[{t:'Sakura Morning',c:'#f9c9d9',src:'/audio/sakura-morning.mp3'},{t:'Rainy Cat Café',c:'#cfe6f7',src:'/audio/rainy-cat-cafe.mp3'},{t:'Tokyo Night Walk',c:'#b9a8e6',src:'/audio/tokyo-night-walk.mp3'},{t:'Cozy Study Session',c:'#ffe3a8',src:'/audio/cozy-study-session.mp3'},{t:'Dreamy Spring Afternoon',c:'#cdeccf',src:'/audio/dreamy-spring-afternoon.mp3'}]
+// Add more tracks: drop an MP3 in public/audio/ and list it here.
+export const TRACKS=[{t:'Luminous – Roa',c:'#cdb8ef',src:'/audio/roa-luminous.mp3'}]
 type St={i:number;pl:boolean;cur:number;dur:number;err:string;loop:boolean;sh:boolean}
 /** One shared audio element so the desktop widget and the Music window always agree. */
 let st:St={i:0,pl:false,cur:0,dur:0,err:'',loop:false,sh:false}

@@ -1,22 +1,16 @@
 import {useEffect,useRef,useState} from 'react'
 import {motion} from 'framer-motion'
+import Lottie,{type LottieRefCurrentProps} from 'lottie-react'
+import {useLocalStorage} from '../hooks/useLocalStorage'
 type Mode='walk'|'sit'|'smile'|'jump'|'chase'|'rest'|'sleep'
 const rand=(a:number,b:number)=>a+Math.random()*(b-a)
-const K='#4a3228',F='#f6f1ea',T='#b9b4b8',O='rgba(0,0,0,.14)'
-function Sprite({mode,face}:{mode:Mode;face:number}){
-  const st={stroke:K,strokeWidth:2,fill:'none',strokeLinecap:'round' as const}
-  const eyes=mode==='sleep'?<path d="M74 37q4 4 8 0M87 37q4 4 8 0" {...st}/>:mode==='smile'||mode==='rest'?<path d="M74 37q4-5 8 0M87 37q4-5 8 0" {...st}/>
-    :<><circle cx="78" cy="36" r="3.4" fill={K}/><circle cx="91" cy="36" r="3.4" fill={K}/><circle cx="79" cy="35" r="1.1" fill="#fff"/><circle cx="92" cy="35" r="1.1" fill="#fff"/></>
-  const leg=(x:number,b?:boolean)=><rect className={`leg${b?' b':''}`} x={x} y="56" width="9" height="20" rx="4.5" fill="#e9e3dc" stroke={O}/>
-  return <div style={{transform:`scaleX(${face})`}}><svg viewBox="0 0 110 80" width="100%" className={`cat ${mode}`} role="img" aria-label="Your cat companion">
-    <g className="tail"><path d="M24 48Q2 44 8 20" stroke={F} strokeWidth="9" fill="none" strokeLinecap="round"/><path d="M8 28Q6 24 8 20" stroke={T} strokeWidth="9" fill="none" strokeLinecap="round"/></g>
-    {leg(30,true)}{leg(42)}<ellipse className="body" cx="54" cy="46" rx="32" ry="18" fill={F} stroke={O}/><path d="M32 36q12-8 26-3" stroke={T} strokeWidth="6" strokeLinecap="round" fill="none" opacity=".8"/>{leg(62)}{leg(74,true)}
-    <g className="head"><path d="M70 28 72 8 86 21zM99 28 97 8 83 21z" fill={F} stroke={O}/><path d="M73 24 74 14 81 21zM96 24 95 14 88 21z" fill="#f7b6c6"/><circle cx="85" cy="37" r="18" fill={F} stroke={O}/><path d="M79 21q6-4 12 0" stroke={T} strokeWidth="4" strokeLinecap="round" fill="none"/>{eyes}
-      <circle cx="73" cy="44" r="4" fill="#f7a8c0" opacity=".5"/><circle cx="97" cy="44" r="4" fill="#f7a8c0" opacity=".5"/><path d="M83 42h5l-2.5 3z" fill="#f08aa6"/><path d="M85.5 45q-3 4-6 1M85.5 45q3 4 6 1" {...st} strokeWidth="1.5"/></g></svg></div>
-}
+// flip: set to -1 if a cat walks backwards. still: pause the animation whenever the cat is standing.
+const CATS:Record<string,{src:string;flip:number;still:boolean}>={cat:{src:'/cat/cat.json',flip:1,still:true},space:{src:'/cat/space-cat.json',flip:1,still:false}}
 /** The roaming cat: a small state machine (wander, smile, jump from the tree, chase petals, sit by the dock, rest, sleep). */
 export default function Companion({mobile}:{mobile:boolean}){
-  const S=mobile?84:116,gy=()=>innerHeight-(mobile?96:112)-S
+  const [pick]=useLocalStorage('scd-cat','cat'),C=CATS[pick]??CATS.cat,S=mobile?96:140,[ratio,setRatio]=useState(1.4),hRef=useRef(S/1.4),gy=()=>innerHeight-(mobile?96:112)-hRef.current
+  hRef.current=S/ratio
+  const [data,setData]=useState<{w:number;h:number}|null>(null),[ready,setReady]=useState(0),lot=useRef<LottieRefCurrentProps>(null),box=useRef<HTMLDivElement>(null)
   const [p,setP]=useState(()=>({x:innerWidth*.3,y:gy()})),[dur,setDur]=useState(0),[mode,setMode]=useState<Mode>('sit'),[face,setFace]=useState(1),[say,setSay]=useState('')
   const [bait,setBait]=useState<{x:number;y:number}|null>(null),at=useRef(p),snd=useRef<HTMLAudioElement|null>(null)
   useEffect(()=>{
@@ -35,12 +29,29 @@ export default function Companion({mobile}:{mobile:boolean}){
       else if(r<.89){await go(W*.16,g);setMode('rest');await sl(5)}
       else{await go(W*.14,g);setMode('sleep');await sl(8)}}})()
     return()=>{dead=true}},[mobile])
+  useEffect(()=>{setData(null);let ok=true
+    fetch(C.src).then(r=>r.json()).then(d=>{if(ok){setRatio(d.w/d.h);setData(d)}}).catch(()=>{});return()=>{ok=false}},[C.src])
+  /* Crop the Lottie canvas to the cat: union of every visible path over sampled frames, ignoring full-canvas backgrounds. */
+  useEffect(()=>{if(!data)return
+    const t=setTimeout(()=>{const a=lot.current?.animationItem,svg=box.current?.querySelector('svg');if(!a||!svg)return
+      const R=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,s=Math.min(R.width/vb.width,R.height/vb.height),ox=(R.width-vb.width*s)/2,oy=(R.height-vb.height*s)/2
+      let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9
+      for(let i=0;i<10;i++){a.goToAndStop(Math.floor(a.totalFrames*i/10),true)
+        svg.querySelectorAll('path').forEach(p=>{const r=p.getBoundingClientRect();if(!r.width||!r.height||(r.width>R.width*.8&&r.height>R.height*.8))return
+          x0=Math.min(x0,r.left);y0=Math.min(y0,r.top);x1=Math.max(x1,r.right);y1=Math.max(y1,r.bottom)})}
+      if(x1>x0){const pad=6,nw=(x1-x0)/s+pad*2,nh=(y1-y0)/s+pad*2
+        svg.setAttribute('viewBox',`${(x0-R.left-ox)/s+vb.x-pad} ${(y0-R.top-oy)/s+vb.y-pad} ${nw} ${nh}`);setRatio(nw/nh)}
+      a.goToAndPlay(0,true);setReady(n=>n+1)},350)
+    return()=>clearTimeout(t)},[data])
+  // The walking cat only animates while it moves; the Space Cat floats all the time.
+  useEffect(()=>{const a=lot.current;if(!a)return;const moving=mode==='walk'||mode==='chase'||mode==='jump'
+    if(!C.still||moving){a.setSpeed(mode==='chase'?1.7:1);a.play()}else a.pause()},[mode,data,ready,C.still])
   const poke=()=>{if(localStorage.getItem('scd-sound')!=='false'){snd.current??=new Audio('/audio/meow.mp3');snd.current.currentTime=0;snd.current.play().catch(()=>{})}
     setMode('smile');setSay('meow~');setTimeout(()=>setSay(''),1600)}
   return <div className="pointer-events-none fixed inset-0 z-[4]">
     {bait&&<motion.span className="absolute left-0 top-0 text-xl" initial={{x:bait.x+S/2,y:bait.y-260,opacity:0}} animate={{x:bait.x+S/2,y:bait.y+S*.7,opacity:1}} transition={{duration:1.4}}>🌸</motion.span>}
     <motion.div className="absolute left-0 top-0" animate={{x:p.x,y:p.y}} transition={{duration:dur,ease:mode==='jump'?'easeIn':'linear'}}>
-      <button onClick={poke} aria-label="Pet the cat" className="pointer-events-auto relative block cursor-pointer" style={{width:S}}><Sprite mode={mode} face={face}/>
+      <button onClick={poke} aria-label="Pet the cat" className="pointer-events-auto relative block cursor-pointer" style={{width:S}}><div ref={box} style={{width:S,height:S/ratio,transform:`scaleX(${face*C.flip})`}}>{data&&<Lottie key={C.src} lottieRef={lot} animationData={data} loop style={{width:'100%',height:'100%'}}/>}</div>
         {say&&<span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 text-xs font-bold shadow">{say}</span>}
         {mode==='sleep'&&<span className="zzz absolute -top-4 right-0 font-black text-white drop-shadow">Z z z</span>}</button></motion.div></div>
 }

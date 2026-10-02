@@ -14,8 +14,7 @@ export default function TopBar(){
     return()=>{clearInterval(t);removeEventListener('pointerdown',d);removeEventListener('keydown',k)}},[])
   const pill='glass pointer-events-auto flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-black'
   const cur=P.find(p=>p.id===open)
-  return <header ref={ref} data-top className="pointer-events-none fixed inset-x-0 top-0 z-[50000] flex items-start justify-between p-2.5">
-    <div className={pill}>🌸 <span className="hidden sm:inline">Sakura Cat Desktop</span></div>
+  return <header ref={ref} data-top className="pointer-events-none fixed inset-x-0 top-0 z-[50000] flex items-start justify-end p-2.5">
     <div className="flex gap-1.5">{P.map(p=><button key={p.id} aria-label={p.l} aria-expanded={open===p.id} onClick={()=>setOpen(o=>o===p.id?null:p.id)} className={pill}>{p.i}
       {p.id==='clock'&&n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}{p.id==='cal'&&<span className="hidden sm:inline">{n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}</span>}</button>)}</div>
     <AnimatePresence>{cur&&<motion.div key={cur.id} role="region" aria-label={cur.l} initial={{opacity:0,scale:.95,y:-8}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:.95}} style={{transformOrigin:'top right'}}
