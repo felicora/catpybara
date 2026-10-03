@@ -16,5 +16,5 @@ Patterns borrowed from the public repo page of a desktop-OS-style project (struc
 - Wallpapers live in `public/wallpapers/` (right-click the desktop, long-press on touch, or use Settings to switch).
 - Dock icons are cropped from your icon sheet into `public/icons/` (all eight, including Five in a Row).
 - `public/audio/meow.mp3` plays when you click the cat.
-- The roaming cat is a Lottie animation (`public/cat/cat.json` or `public/cat/space-cat.json`), chosen in Settings or the right-click menu. If one walks backwards, set `flip:-1` in `CATS` in `src/components/Companion.tsx`. `public/cat/peek.mp4` is the draggable polaroid.
+- The pet is OFF by default. Pick Spotted Cat (`public/cat/spotted.webp`, from your GIF) or Space Cat (Lottie) in Settings or the right-click menu. Clicking it meows and shows a rotating affirmation (`src/data/affirmations.ts`). `public/cat/peek.mp4` is the draggable polaroid.
 - Cat Pet is a Tamagotchi: the frame is your artwork (`public/icons/pet-device.webp`, LCD cleared), the pixel cat and screen are drawn live in `src/apps/Pet.tsx`. Needs (food, joy, energy) drift down with real time and are saved locally.
