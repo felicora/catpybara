@@ -9,7 +9,7 @@ export default function Boot({onDone}:{onDone:()=>void}){
   return <motion.button aria-label="Skip startup" onClick={onDone} exit={{opacity:0,scale:1.05}} transition={{duration:.4}} className="fixed inset-0 z-[100000] grid place-items-center bg-[#fde9ef]">
     <span className="block w-64 text-center">
       <span className="relative mx-auto block h-[72px] w-full" aria-hidden><img src="/cat/spotted.webp" alt="" draggable={false} className="absolute bottom-0 w-[100px] h-auto transition-all duration-500" style={{left:`calc((100% - 126px) * ${Math.min(n,4)/4})`,transform:'scaleX(-1)'}}/></span>
-      <span className="mt-2 block text-xl font-black">Sakura Cat Desktop</span>
+      <span className="mt-2 block text-xl font-black">Catpybara Desktop</span>
       <span className="block h-6 text-sm font-bold" role="status">{STEPS[Math.min(n,3)]}</span>
       <span className="mx-auto mt-1 block h-3 w-full overflow-hidden rounded-full bg-white shadow-inner"><span className="block h-full rounded-full bg-pink-300 transition-all duration-500" style={{width:`${Math.min(n,4)*25}%`}}/></span>
       <span className="mt-2 block h-5 text-sm" aria-hidden>{'🐾'.repeat(Math.min(n,4))}</span>
