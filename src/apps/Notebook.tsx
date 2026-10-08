@@ -36,5 +36,5 @@ Tap ＋ to write a note.
 }
 export default function Notebook(){
   const [t,setT]=useState<'notes'|'todo'>('notes')
-  return <div><div role="tablist" className="flex gap-1 px-3 pt-3">{(['notes','todo'] as const).map(v=><button key={v} role="tab" aria-selected={t===v} onClick={()=>setT(v)} className={`rounded-full px-3 py-1 text-sm font-bold ${t===v?'bg-pink-300':'bg-white/80'}`}>{v==='notes'?'Notes':'To-do'}</button>)}</div>{t==='notes'?<Notes/>:<Todo/>}</div>
+  return <div><div role="tablist" className="flex gap-1 px-3 pt-3">{(['notes','todo'] as const).map(v=><button key={v} role="tab" aria-selected={t===v} onClick={()=>setT(v)} className={`rounded-full px-3 py-1 text-sm font-bold ${t===v?'bg-pink-300':'bg-white/80'}`}>{v==='notes'?'Notes':'To-do'}</button>)}</div>{t==='notes'?<Notes/>:<Todo/>}</div>)
 }
