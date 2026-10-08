@@ -22,7 +22,10 @@ function Notes(){
       <textarea value={cur.body} maxLength={2000} onChange={e=>upd({body:e.target.value})} aria-label="Note text" rows={7} className="w-full resize-none bg-transparent text-sm leading-[28px] outline-none" style={{backgroundImage:'repeating-linear-gradient(transparent,transparent 27px,#d9a8b8 28px)'}}/>
       {cur.body.split('\n').map((l,li)=>/^\[[ x]\] /.test(l)&&<label key={li} className="flex gap-2 text-sm"><input type="checkbox" checked={l[1]==='x'} onChange={()=>flip(li)}/>{l.slice(4)}</label>)}
       <p className="mt-1 text-[11px] opacity-70">{cur.body.length}/2000 · created {new Date(cur.cr).toLocaleDateString()} · edited {new Date(cur.mod).toLocaleString()}</p></div>
-    :<div className="grid place-items-center rounded-2xl bg-white/60 p-4 text-center text-sm font-bold"><svg width="120" viewBox="0 0 120 70" aria-hidden><rect x="10" y="30" width="100" height="34" rx="4" fill="#ffd4dc" stroke="#c9a48c"/><ellipse cx="60" cy="28" rx="34" ry="14" fill="#ffe3c8" stroke="#c9a48c"/><circle cx="36" cy="24" r="12" fill="#ffe3c8" stroke="#c9a48c"/><path d="M28 14l-2-10 9 6zM40 12l8-6 0 10z" fill="#ffe3c8"/><path d="M30 25q3 3 6 0M38 25q3 3 6 0" stroke="#4a3228" fill="none"/></svg>Shh, the cat is napping on your notebook.<br/>Tap ＋ to write a note.</div>}
+    :<div className="grid place-items-center rounded-2xl bg-white/60 p-4 text-center text-sm font-bold"><img
+  src="/cat/sleeping-cat.png"
+  alt="Sleeping Cat"
+  className="w-44 h-auto mb-2" Shhh, mochi is napping on your notebook.<br/>Tap ＋ to write a note.</div>}
   </div>
 }
 export default function Notebook(){
