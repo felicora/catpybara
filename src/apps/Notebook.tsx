@@ -23,13 +23,16 @@ function Notes(){
       {cur.body.split('\n').map((l,li)=>/^\[[ x]\] /.test(l)&&<label key={li} className="flex gap-2 text-sm"><input type="checkbox" checked={l[1]==='x'} onChange={()=>flip(li)}/>{l.slice(4)}</label>)}
       <p className="mt-1 text-[11px] opacity-70">{cur.body.length}/2000 · created {new Date(cur.cr).toLocaleDateString()} · edited {new Date(cur.mod).toLocaleString()}</p></div>
     :<div className="grid place-items-center rounded-2xl bg-white/60 p-4 text-center text-sm font-bold">
-/cat/sleeping-cat.png
+<img
+sleeping-cat.png
  
 <p>
 Shhh, Mochi is napping on the notebook. 💤
 <br />
 Tap ＋ to write a note.
 </p>
+</div>
+)}
 </div>
 }
 export default function Notebook(){
