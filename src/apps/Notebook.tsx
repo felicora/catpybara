@@ -23,17 +23,10 @@ function Notes(){
       {cur.body.split('\n').map((l,li)=>/^\[[ x]\] /.test(l)&&<label key={li} className="flex gap-2 text-sm"><input type="checkbox" checked={l[1]==='x'} onChange={()=>flip(li)}/>{l.slice(4)}</label>)}
       <p className="mt-1 text-[11px] opacity-70">{cur.body.length}/2000 · created {new Date(cur.cr).toLocaleDateString()} · edited {new Date(cur.mod).toLocaleString()}</p></div>
     :<div className="grid place-items-center rounded-2xl bg-white/60 p-4 text-center text-sm font-bold">
-<img src="/cat/sleeping-cat.png/>
- 
-<p>
-Shhh, Mochi is napping on the notebook. 💤
-<br />
-Tap ＋ to write a note.
-</p>
-</div>
-)}
-</div>
-  )
+      <img src="/cat/sleeping-cat.png" alt="Mochi the cat napping on a notebook" draggable={false} className="mx-auto mb-2 w-40 max-w-full"/>
+      <p>Shhh, Mochi is napping on the notebook. 💤<br/>Tap ＋ to write a note.</p>
+    </div>}
+  </div>
 }
 export default function Notebook() {
 const [t, setT] = useState<'notes' | 'todo'>('notes')
